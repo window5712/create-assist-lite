@@ -6,42 +6,41 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Zap, Mail, Lock, User, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     acceptTerms: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.acceptTerms) {
-      toast({
-        title: "Terms required",
-        description: "Please accept our terms and conditions to continue.",
-        variant: "destructive",
-      });
       return;
     }
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Account created successfully!",
-        description: "Welcome to SocialStream. Let's get you set up.",
-      });
+    const { error } = await signUp(
+      formData.email, 
+      formData.password, 
+      formData.firstName, 
+      formData.lastName
+    );
+    
+    if (!error) {
       navigate("/onboarding");
-    }, 1500);
+    }
+    
+    setIsLoading(false);
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -81,15 +80,31 @@ const Signup = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="firstName">First name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="name"
+                    id="firstName"
                     type="text"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder="Enter your first name"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Enter your last name"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange("lastName", e.target.value)}
                     className="pl-10"
                     required
                   />

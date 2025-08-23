@@ -1,51 +1,41 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Zap, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signIn, signInWithMagicLink } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Welcome back!",
-        description: "You'll be redirected to your dashboard shortly.",
-      });
-    }, 1500);
+    const { error } = await signIn(email, password);
+    
+    if (!error) {
+      navigate("/dashboard");
+    }
+    
+    setIsLoading(false);
   };
 
   const handleMagicLink = async () => {
     if (!email) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email address to receive a magic link.",
-        variant: "destructive",
-      });
       return;
     }
     
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Magic link sent!",
-        description: "Check your email for a secure sign-in link.",
-      });
-    }, 1000);
+    await signInWithMagicLink(email);
+    setIsLoading(false);
   };
 
   return (
