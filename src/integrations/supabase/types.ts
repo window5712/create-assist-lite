@@ -14,7 +14,345 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          organization_id: string
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          organization_id: string
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          organization_id?: string
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_queue: {
+        Row: {
+          attempts: number | null
+          created_at: string
+          id: string
+          last_attempt_at: string | null
+          last_error: string | null
+          max_attempts: number | null
+          organization_id: string
+          platform: string
+          platform_post_id: string | null
+          platform_response: Json | null
+          post_id: string
+          scheduled_for: string
+          social_account_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string
+          id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          max_attempts?: number | null
+          organization_id: string
+          platform: string
+          platform_post_id?: string | null
+          platform_response?: Json | null
+          post_id: string
+          scheduled_for: string
+          social_account_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string
+          id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          max_attempts?: number | null
+          organization_id?: string
+          platform?: string
+          platform_post_id?: string | null
+          platform_response?: Json | null
+          post_id?: string
+          scheduled_for?: string
+          social_account_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_queue_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_queue_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_queue_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          plan: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          plan?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          plan?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          call_to_action: string | null
+          content: string
+          created_at: string
+          created_by: string
+          hashtags: string[] | null
+          id: string
+          media_urls: string[] | null
+          organization_id: string
+          platform_variants: Json | null
+          published_at: string | null
+          scheduled_for: string | null
+          status: string
+          target_platforms: string[]
+          title: string | null
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          call_to_action?: string | null
+          content: string
+          created_at?: string
+          created_by: string
+          hashtags?: string[] | null
+          id?: string
+          media_urls?: string[] | null
+          organization_id: string
+          platform_variants?: Json | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          target_platforms: string[]
+          title?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          call_to_action?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          hashtags?: string[] | null
+          id?: string
+          media_urls?: string[] | null
+          organization_id?: string
+          platform_variants?: Json | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: string
+          target_platforms?: string[]
+          title?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          language: string | null
+          last_name: string | null
+          organization_id: string
+          role: string
+          timezone: string | null
+          two_factor_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          organization_id: string
+          role?: string
+          timezone?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          organization_id?: string
+          role?: string
+          timezone?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_accounts: {
+        Row: {
+          access_token_encrypted: string
+          account_avatar_url: string | null
+          account_id: string
+          account_name: string
+          account_username: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_error: string | null
+          last_refresh_at: string | null
+          organization_id: string
+          platform: string
+          refresh_token_encrypted: string | null
+          scopes: string[] | null
+          token_expires_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token_encrypted: string
+          account_avatar_url?: string | null
+          account_id: string
+          account_name: string
+          account_username?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_error?: string | null
+          last_refresh_at?: string | null
+          organization_id: string
+          platform: string
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token_encrypted?: string
+          account_avatar_url?: string | null
+          account_id?: string
+          account_name?: string
+          account_username?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_error?: string | null
+          last_refresh_at?: string | null
+          organization_id?: string
+          platform?: string
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_accounts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
