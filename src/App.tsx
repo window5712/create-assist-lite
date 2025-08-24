@@ -14,6 +14,8 @@ import Composer from "./pages/Composer";
 import SocialAccounts from "./pages/SocialAccounts";
 import CalendarView from "./pages/Calendar";
 import Analytics from "./pages/Analytics";
+import Templates from "./pages/Templates";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +71,21 @@ const App = () => (
             <Route path="/analytics" element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/composer" element={
+              <ProtectedRoute>
+                <Composer />
+              </ProtectedRoute>
+            } />
+            <Route path="/templates" element={
+              <ProtectedRoute>
+                <Templates />
+              </ProtectedRoute>
+            } />
+            <Route path="/help" element={
+              <ProtectedRoute>
+                <Help />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

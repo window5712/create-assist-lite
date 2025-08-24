@@ -1,10 +1,20 @@
 project_id = "ztzlttcckorogkeripqm"
 
-[functions.oauth-connect]
-verify_jwt = true
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
-[functions.oauth-callback]
+[functions.oauth-connect]
+verify_jwt = false
+
+[functions.oauth-callback] 
 verify_jwt = false
 
 [functions.schedule-posts]
 verify_jwt = false
+
+[functions.ai-generate]
+verify_jwt = true

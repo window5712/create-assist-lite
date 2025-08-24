@@ -140,8 +140,46 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          organization_id: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          organization_id: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          organization_id?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizations: {
         Row: {
+          ai_settings: Json | null
+          auto_publish_enabled: boolean | null
           created_at: string
           id: string
           name: string
@@ -150,6 +188,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_settings?: Json | null
+          auto_publish_enabled?: boolean | null
           created_at?: string
           id?: string
           name: string
@@ -158,6 +198,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_settings?: Json | null
+          auto_publish_enabled?: boolean | null
           created_at?: string
           id?: string
           name?: string
@@ -167,8 +209,112 @@ export type Database = {
         }
         Relationships: []
       }
+      post_analytics: {
+        Row: {
+          clicks: number | null
+          comments: number | null
+          created_at: string
+          engagements: number | null
+          id: string
+          impressions: number | null
+          last_updated: string | null
+          likes: number | null
+          organization_id: string
+          platform: string
+          platform_post_id: string | null
+          post_id: string
+          reach: number | null
+          saves: number | null
+          shares: number | null
+        }
+        Insert: {
+          clicks?: number | null
+          comments?: number | null
+          created_at?: string
+          engagements?: number | null
+          id?: string
+          impressions?: number | null
+          last_updated?: string | null
+          likes?: number | null
+          organization_id: string
+          platform: string
+          platform_post_id?: string | null
+          post_id: string
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+        }
+        Update: {
+          clicks?: number | null
+          comments?: number | null
+          created_at?: string
+          engagements?: number | null
+          id?: string
+          impressions?: number | null
+          last_updated?: string | null
+          likes?: number | null
+          organization_id?: string
+          platform?: string
+          platform_post_id?: string | null
+          post_id?: string
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_analytics_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          organization_id: string
+          post_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          post_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          post_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
+          ai_generated: boolean | null
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
           call_to_action: string | null
           content: string
           created_at: string
@@ -179,14 +325,20 @@ export type Database = {
           organization_id: string
           platform_variants: Json | null
           published_at: string | null
+          rejection_reason: string | null
           scheduled_for: string | null
           status: string
           target_platforms: string[]
+          template_id: string | null
           title: string | null
           tone: string | null
           updated_at: string
         }
         Insert: {
+          ai_generated?: boolean | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
           call_to_action?: string | null
           content: string
           created_at?: string
@@ -197,14 +349,20 @@ export type Database = {
           organization_id: string
           platform_variants?: Json | null
           published_at?: string | null
+          rejection_reason?: string | null
           scheduled_for?: string | null
           status?: string
           target_platforms: string[]
+          template_id?: string | null
           title?: string | null
           tone?: string | null
           updated_at?: string
         }
         Update: {
+          ai_generated?: boolean | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
           call_to_action?: string | null
           content?: string
           created_at?: string
@@ -215,9 +373,11 @@ export type Database = {
           organization_id?: string
           platform_variants?: Json | null
           published_at?: string | null
+          rejection_reason?: string | null
           scheduled_for?: string | null
           status?: string
           target_platforms?: string[]
+          template_id?: string | null
           title?: string | null
           tone?: string | null
           updated_at?: string
@@ -228,6 +388,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
             referencedColumns: ["id"]
           },
         ]
@@ -353,12 +520,118 @@ export type Database = {
           },
         ]
       }
+      templates: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean | null
+          language: string | null
+          name: string
+          organization_id: string
+          platforms: string[] | null
+          template_type: string
+          topic_id: string | null
+          updated_at: string
+          usage_count: number | null
+          variables: Json | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean | null
+          language?: string | null
+          name: string
+          organization_id: string
+          platforms?: string[] | null
+          template_type: string
+          topic_id?: string | null
+          updated_at?: string
+          usage_count?: number | null
+          variables?: Json | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean | null
+          language?: string | null
+          name?: string
+          organization_id?: string
+          platforms?: string[] | null
+          template_type?: string
+          topic_id?: string | null
+          updated_at?: string
+          usage_count?: number | null
+          variables?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "templates_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topics: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          industry: string | null
+          keywords: string[] | null
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          keywords?: string[] | null
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          keywords?: string[] | null
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_notification: {
+        Args: {
+          _data?: Json
+          _message: string
+          _organization_id: string
+          _title: string
+          _type: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      has_role: {
+        Args: { _role: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
