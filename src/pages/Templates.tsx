@@ -1,485 +1,179 @@
-import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Edit2, Trash2, Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-
-interface Template {
-  id: string;
-  name: string;
-  template_type: string;
-  content: string;
-  platforms: string[];
-  language: string;
-  is_active: boolean;
-  usage_count: number;
-  topics: { name: string } | null;
-  created_at: string;
-}
-
-interface Topic {
-  id: string;
-  name: string;
-  description: string;
-  keywords: string[];
-}
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Search, 
+  Plus, 
+  Star, 
+  Copy,
+  Edit,
+  Trash2,
+  Filter,
+  Heart,
+  MessageSquare,
+  TrendingUp,
+  Calendar,
+  Zap
+} from "lucide-react";
 
 export default function Templates() {
-  const { user, organization } = useAuth();
-  const { toast } = useToast();
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [filterLanguage, setFilterLanguage] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [newTemplate, setNewTemplate] = useState({
-    name: '',
-    template_type: 'post',
-    content: '',
-    topic_id: '',
-    platforms: [] as string[],
-    language: 'en',
-    variables: {} as Record<string, string>
-  });
-
-  useEffect(() => {
-    if (user && organization) {
-      fetchTemplates();
-      fetchTopics();
+  const mockTemplates = [
+    {
+      id: '1',
+      title: 'Product Launch',
+      category: 'announcements',
+      content: '🚀 Excited to announce our latest product! Get ready for innovation that will change everything.',
+      platforms: ['facebook', 'linkedin'],
+      engagement: { likes: 245, shares: 34, comments: 18 },
+      performance: 'high',
+      usage: 12
+    },
+    {
+      id: '2', 
+      title: 'Weekly Tips',
+      category: 'educational',
+      content: '💡 Pro Tip Tuesday: Did you know that posting at optimal times can increase engagement by 50%?',
+      platforms: ['instagram', 'twitter'],
+      engagement: { likes: 156, shares: 28, comments: 12 },
+      performance: 'medium',
+      usage: 8
+    },
+    {
+      id: '3',
+      title: 'Behind the Scenes',
+      category: 'company',
+      content: '🎬 Take a peek behind the scenes at our amazing team working hard to bring you the best.',
+      platforms: ['instagram', 'facebook'],
+      engagement: { likes: 198, shares: 15, comments: 23 },
+      performance: 'high',
+      usage: 15
     }
-  }, [user, organization]);
-
-  const fetchTemplates = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('templates')
-        .select(`
-          *,
-          topics (name)
-        `)
-        .eq('organization_id', organization.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTemplates(data || []);
-    } catch (error) {
-      console.error('Error fetching templates:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch templates",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTopics = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('topics')
-        .select('*')
-        .eq('organization_id', organization.id);
-
-      if (error) throw error;
-      setTopics(data || []);
-    } catch (error) {
-      console.error('Error fetching topics:', error);
-    }
-  };
-
-  const createTemplate = async () => {
-    if (!newTemplate.name.trim() || !newTemplate.content.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Name and content are required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('templates')
-        .insert({
-          ...newTemplate,
-          organization_id: organization.id,
-          created_by: user.id
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Template created successfully"
-      });
-
-      setShowCreateDialog(false);
-      setNewTemplate({
-        name: '',
-        template_type: 'post',
-        content: '',
-        topic_id: '',
-        platforms: [],
-        language: 'en',
-        variables: {}
-      });
-      fetchTemplates();
-    } catch (error) {
-      console.error('Error creating template:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create template",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const deleteTemplate = async (templateId: string) => {
-    try {
-      const { error } = await supabase
-        .from('templates')
-        .delete()
-        .eq('id', templateId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Template deleted successfully"
-      });
-      fetchTemplates();
-    } catch (error) {
-      console.error('Error deleting template:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete template",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const duplicateTemplate = async (template: Template) => {
-    try {
-      const { error } = await supabase
-        .from('templates')
-        .insert({
-          name: `${template.name} (Copy)`,
-          template_type: template.template_type,
-          content: template.content,
-          platforms: template.platforms,
-          language: template.language,
-          organization_id: organization.id,
-          created_by: user.id
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Template duplicated successfully"
-      });
-      fetchTemplates();
-    } catch (error) {
-      console.error('Error duplicating template:', error);
-      toast({
-        title: "Error",
-        description: "Failed to duplicate template",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const filteredTemplates = templates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || template.template_type === filterType;
-    const matchesLanguage = filterLanguage === 'all' || template.language === filterLanguage;
-    
-    return matchesSearch && matchesType && matchesLanguage;
-  });
-
-  const platforms = ['facebook', 'instagram', 'linkedin', 'twitter', 'youtube'];
-  const templateTypes = [
-    { value: 'post', label: 'Post Content' },
-    { value: 'headline', label: 'Headlines' },
-    { value: 'hashtag', label: 'Hashtags' },
-    { value: 'cta', label: 'Call to Action' }
   ];
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-64">Loading templates...</div>;
-  }
+  const performanceColors = {
+    high: 'bg-success',
+    medium: 'bg-warning', 
+    low: 'bg-destructive'
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    const icons = {
+      facebook: '📘',
+      instagram: '📷', 
+      linkedin: '💼',
+      twitter: '🐦'
+    };
+    return icons[platform as keyof typeof icons] || '📱';
+  };
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Templates & Topics</h1>
-          <p className="text-muted-foreground mt-2">Manage your content templates and organize by topics</p>
+    <DashboardLayout 
+      title="Templates"
+      description="Pre-made content templates to speed up your posting"
+    >
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <Button className="self-start w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Template
+          </Button>
         </div>
-        
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Template
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Template</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Template Name</Label>
-                <Input
-                  id="name"
-                  value={newTemplate.name}
-                  onChange={(e) => setNewTemplate(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., Product Launch Announcement"
-                />
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label>Template Type</Label>
-                  <Select
-                    value={newTemplate.template_type}
-                    onValueChange={(value) => setNewTemplate(prev => ({ ...prev, template_type: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templateTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search templates..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button variant="outline" className="self-start sm:self-auto w-full sm:w-auto">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </div>
+
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {mockTemplates.map((template) => (
+            <Card key={template.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg mb-2">{template.title}</h3>
+                  <div className="flex gap-2 mb-3">
+                    <Badge variant="secondary" className="capitalize text-xs">
+                      {template.category}
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs text-white ${performanceColors[template.performance as keyof typeof performanceColors]}`}
+                    >
+                      {template.performance} performance
+                    </Badge>
+                  </div>
                 </div>
-
-                <div className="grid gap-2">
-                  <Label>Language</Label>
-                  <Select
-                    value={newTemplate.language}
-                    onValueChange={(value) => setNewTemplate(prev => ({ ...prev, language: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="ur">Urdu</SelectItem>
-                    </SelectContent>
-                  </Select>
+                
+                <div className="flex space-x-1">
+                  <Button size="sm" variant="ghost">
+                    <Star className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost">
+                    <Edit className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label>Topic</Label>
-                <Select
-                  value={newTemplate.topic_id}
-                  onValueChange={(value) => setNewTemplate(prev => ({ ...prev, topic_id: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a topic (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {topics.map(topic => (
-                      <SelectItem key={topic.id} value={topic.id}>
-                        {topic.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label>Platforms</Label>
-                <div className="flex flex-wrap gap-2">
-                  {platforms.map(platform => (
-                    <div key={platform} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={platform}
-                        checked={newTemplate.platforms.includes(platform)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setNewTemplate(prev => ({
-                              ...prev,
-                              platforms: [...prev.platforms, platform]
-                            }));
-                          } else {
-                            setNewTemplate(prev => ({
-                              ...prev,
-                              platforms: prev.platforms.filter(p => p !== platform)
-                            }));
-                          }
-                        }}
-                      />
-                      <Label htmlFor={platform} className="capitalize">{platform}</Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="content">Template Content</Label>
-                <Textarea
-                  id="content"
-                  value={newTemplate.content}
-                  onChange={(e) => setNewTemplate(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="Enter your template content here..."
-                  rows={6}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Use variables like {'{company_name}'} or {'{product_name}'} for dynamic content
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {template.content}
                 </p>
               </div>
 
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={createTemplate}>
-                  Create Template
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex space-x-3">
+                    <span className="flex items-center text-muted-foreground">
+                      <Heart className="h-3 w-3 mr-1" />
+                      {template.engagement.likes}
+                    </span>
+                    <span className="flex items-center text-muted-foreground">
+                      <MessageSquare className="h-3 w-3 mr-1" />
+                      {template.engagement.comments}
+                    </span>
+                  </div>
+                  <span className="text-muted-foreground">
+                    Used {template.usage}x
+                  </span>
+                </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex-1 min-w-64">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search templates..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
-        
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-48">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter by type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {templateTypes.map(type => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={filterLanguage} onValueChange={setFilterLanguage}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by language" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Languages</SelectItem>
-            <SelectItem value="en">English</SelectItem>
-            <SelectItem value="ur">Urdu</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Templates Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredTemplates.map((template) => (
-          <Card key={template.id} className="p-6 hover:shadow-lg transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-2">{template.name}</h3>
-                <div className="flex gap-2 mb-3">
-                  <Badge variant="secondary" className="capitalize">
-                    {template.template_type.replace('_', ' ')}
-                  </Badge>
-                  <Badge variant="outline" className="uppercase">
-                    {template.language}
-                  </Badge>
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-1">
+                    {template.platforms.map(platform => (
+                      <span key={platform} className="text-xs">
+                        {getPlatformIcon(platform)}
+                      </span>
+                    ))}
+                  </div>
+                  <Button size="sm" className="text-xs">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Use Template
+                  </Button>
                 </div>
               </div>
-              
-              <div className="flex space-x-2">
-                <Button size="sm" variant="ghost" onClick={() => duplicateTemplate(template)}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button size="sm" variant="ghost">
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  onClick={() => deleteTemplate(template.id)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {template.content}
-              </p>
-            </div>
-
-            <div className="flex justify-between items-center text-sm text-muted-foreground">
-              <div>
-                Used {template.usage_count} times
-              </div>
-              {template.topics?.name && (
-                <Badge variant="outline" className="text-xs">
-                  {template.topics.name}
-                </Badge>
-              )}
-            </div>
-
-            {template.platforms.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1">
-                {template.platforms.map(platform => (
-                  <Badge key={platform} variant="secondary" className="text-xs capitalize">
-                    {platform}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
-
-      {filteredTemplates.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg">No templates found</p>
-          <p className="text-muted-foreground mt-2">
-            {searchTerm || filterType !== 'all' || filterLanguage !== 'all' 
-              ? 'Try adjusting your filters or search terms' 
-              : 'Create your first template to get started'}
-          </p>
+            </Card>
+          ))}
         </div>
-      )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

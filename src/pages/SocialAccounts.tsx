@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { 
   Plus, 
   CheckCircle, 
@@ -190,15 +191,13 @@ export default function SocialAccounts() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Social Media Accounts</h1>
-        <p className="text-muted-foreground">
-          Connect and manage your social media accounts for seamless posting
-        </p>
-      </div>
+    <DashboardLayout 
+      title="Social Media Accounts"
+      description="Connect and manage your social media accounts for seamless posting"
+    >
+      <div className="space-y-6">
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {['facebook', 'instagram', 'linkedin'].map((platform) => {
           const Icon = platformIcons[platform as keyof typeof platformIcons];
           const info = getPlatformInfo(platform);
@@ -328,9 +327,9 @@ export default function SocialAccounts() {
             </Card>
           );
         })}
-      </div>
+        </div>
 
-      {accounts.length > 0 && (
+        {accounts.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Connection Health</CardTitle>
@@ -363,7 +362,8 @@ export default function SocialAccounts() {
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
+        )}
+      </div>
+    </DashboardLayout>
   );
 }

@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/components/ui/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { Link } from "react-router-dom"
 
 interface Template {
@@ -313,7 +314,7 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
         title: "Error",
         description: "Content is required to publish",
         variant: "destructive"
-      });
+    });
       return;
     }
 
@@ -413,48 +414,44 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-foreground">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Dashboard
-              </Link>
-            </div>
-            <h1 className="text-2xl font-bold">Create Post</h1>
-            <div className="flex space-x-2">
-              <Button variant="outline" onClick={handleSave}>
-                <Save className="h-4 w-4 mr-2" />
-                Save Draft
-              </Button>
-              <Button variant="outline" onClick={handleSchedule}>
-                <Clock className="h-4 w-4 mr-2" />
-                Schedule
-              </Button>
-              <Button onClick={handlePublish} className="bg-primary hover:bg-primary/90">
-                <Send className="h-4 w-4 mr-2" />
-                Publish Now
-              </Button>
-            </div>
+    <DashboardLayout 
+      title="Composer"
+      description="Create and schedule your social media posts"
+    >
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Link>
+
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <Button variant="outline" onClick={handleSave} className="w-full sm:w-auto">
+              <Save className="h-4 w-4 mr-2" />
+              Save Draft
+            </Button>
+            <Button variant="outline" onClick={handleSchedule} className="w-full sm:w-auto">
+              <Clock className="h-4 w-4 mr-2" />
+              Schedule
+            </Button>
+            <Button onClick={handlePublish} className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Send className="h-4 w-4 mr-2" />
+              Publish Now
+            </Button>
           </div>
         </div>
-      </header>
 
-      <div className="container mx-auto px-6 py-6">
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
           {/* Composer Panel */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Content Details
-                  <div className="flex space-x-2">
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <span>Content Details</span>
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
                           <FileText className="h-4 w-4 mr-2" />
                           Templates
                         </Button>
@@ -489,7 +486,7 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
 
                     <Dialog open={showAiDialog} onOpenChange={setShowAiDialog}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-primary border-primary/30">
+                        <Button variant="outline" size="sm" className="text-primary border-primary/30 w-full sm:w-auto">
                           <Sparkles className="h-4 w-4 mr-2" />
                           AI Generate
                         </Button>
@@ -498,22 +495,24 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                         <DialogHeader>
                           <DialogTitle>Generate Content with AI</DialogTitle>
                         </DialogHeader>
-                        <div className="grid gap-4">
+                        <div className="space-y-4">
                           <div>
-                            <Label htmlFor="ai-prompt">Describe what you want to create</Label>
-                            <Textarea
+                            <Label htmlFor="ai-prompt">What would you like to create?</Label>
+                            <Textarea 
                               id="ai-prompt"
                               value={aiPrompt}
                               onChange={(e) => setAiPrompt(e.target.value)}
-                              placeholder="e.g., Create an engaging post about our new product launch, highlighting key features and benefits..."
-                              rows={4}
+                              placeholder="e.g., Create a post about our new product launch..."
+                              rows={3}
                             />
                           </div>
-                          <div className="flex justify-end space-x-2">
-                            <Button variant="outline" onClick={() => setShowAiDialog(false)}>
-                              Cancel
-                            </Button>
-                            <Button onClick={generateWithAI} disabled={aiLoading}>
+                          
+                          <div className="flex space-x-2">
+                            <Button 
+                              onClick={generateWithAI} 
+                              disabled={aiLoading}
+                              className="flex-1"
+                            >
                               {aiLoading ? (
                                 <>
                                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -526,6 +525,9 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                                 </>
                               )}
                             </Button>
+                            <Button variant="outline" onClick={() => setShowAiDialog(false)}>
+                              Cancel
+                            </Button>
                           </div>
                         </div>
                       </DialogContent>
@@ -534,7 +536,7 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="topic">Topic</Label>
                     <Input
@@ -544,6 +546,7 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                       placeholder="What's this post about?"
                     />
                   </div>
+                  
                   <div>
                     <Label htmlFor="tone">Tone</Label>
                     <Select value={postData.tone} onValueChange={(value) => updateField('tone', value)}>
@@ -551,54 +554,38 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {tones.map((tone) => (
-                          <SelectItem key={tone} value={tone}>
-                            {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                        {tones.map(tone => (
+                          <SelectItem key={tone} value={tone} className="capitalize">
+                            {tone}
                           </SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="language">Language</Label>
-                    <Select value={postData.language} onValueChange={(value) => updateField('language', value)}>
-                      <SelectTrigger>
-                        <Languages className="h-4 w-4 mr-2" />
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="ur">اردو (Urdu)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label htmlFor="content">Content</Label>
-                    {postData.aiGenerated && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        AI Generated
-                      </Badge>
-                    )}
-                  </div>
+                  <Label htmlFor="content">Content</Label>
                   <Textarea
                     id="content"
                     value={postData.content}
                     onChange={(e) => updateField('content', e.target.value)}
-                    placeholder="Write your post content here or use AI to generate..."
-                    className="min-h-[150px] resize-none"
+                    placeholder="Write your post content here..."
+                    rows={8}
+                    className="resize-none"
                   />
+                  <div className="flex justify-between items-center mt-2 text-sm text-muted-foreground">
+                    <span>{postData.content.length} characters</span>
+                    <Button variant="ghost" size="sm" onClick={generateContent}>
+                      <Wand2 className="h-4 w-4 mr-1" />
+                      Quick Generate
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="hashtags">
-                      <Hash className="inline h-4 w-4 mr-1" />
-                      Hashtags
-                    </Label>
+                    <Label htmlFor="hashtags">Hashtags</Label>
                     <Input
                       id="hashtags"
                       value={postData.hashtags}
@@ -606,11 +593,9 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                       placeholder="#socialmedia #marketing"
                     />
                   </div>
+                  
                   <div>
-                    <Label htmlFor="cta">
-                      <Target className="inline h-4 w-4 mr-1" />
-                      Call to Action
-                    </Label>
+                    <Label htmlFor="cta">Call to Action</Label>
                     <Input
                       id="cta"
                       value={postData.callToAction}
@@ -621,40 +606,38 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                 </div>
 
                 <div>
-                  <Label className="text-base font-medium">Select Platforms</Label>
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    {platforms.map((platform) => (
-                      <div
-                        key={platform.id}
-                        className={`p-3 border rounded-lg cursor-pointer transition-all hover:border-primary ${
-                          postData.selectedPlatforms.includes(platform.id) ? 'border-primary bg-primary/5' : 'border-border'
-                        }`}
-                        onClick={() => togglePlatform(platform.id)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            checked={postData.selectedPlatforms.includes(platform.id)}
-                            onChange={() => {}}
-                          />
-                          <span className="text-sm font-medium">{platform.name}</span>
-                        </div>
+                  <Label>Target Platforms</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                    {platforms.map(platform => (
+                      <div key={platform.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={platform.id}
+                          checked={postData.selectedPlatforms.includes(platform.id)}
+                          onCheckedChange={() => togglePlatform(platform.id)}
+                        />
+                        <Label htmlFor={platform.id} className="text-sm">
+                          {platform.name}
+                        </Label>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <Label className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>Schedule (Optional)</span>
-                  </Label>
-                  <div className="grid grid-cols-2 gap-3 mt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="schedule-date">Schedule Date</Label>
                     <Input
+                      id="schedule-date"
                       type="date"
                       value={postData.scheduledDate}
                       onChange={(e) => updateField('scheduledDate', e.target.value)}
                     />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="schedule-time">Schedule Time</Label>
                     <Input
+                      id="schedule-time"
                       type="time"
                       value={postData.scheduledTime}
                       onChange={(e) => updateField('scheduledTime', e.target.value)}
@@ -672,44 +655,17 @@ ${postData.callToAction || 'Learn more about how this can benefit you!'}
                 <CardTitle>Platform Previews</CardTitle>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="all" className="w-full">
-                  <TabsList className="grid w-full grid-cols-5">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="facebook">Facebook</TabsTrigger>
-                    <TabsTrigger value="instagram">Instagram</TabsTrigger>
-                    <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
-                    <TabsTrigger value="twitter">Twitter</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="all" className="space-y-4 mt-4">
-                    <div className="grid gap-4">
-                      {platforms
-                        .filter(platform => postData.selectedPlatforms.includes(platform.id))
-                        .map(platform => renderPlatformPreview(platform))}
-                    </div>
-                  </TabsContent>
-                  
-                  {platforms.map(platform => (
-                    <TabsContent key={platform.id} value={platform.id} className="mt-4">
-                      {postData.selectedPlatforms.includes(platform.id) ? (
-                        renderPlatformPreview(platform)
-                      ) : (
-                        <Card>
-                          <CardContent className="flex items-center justify-center h-40">
-                            <p className="text-muted-foreground">
-                              Platform not selected for posting
-                            </p>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </TabsContent>
-                  ))}
-                </Tabs>
+                <div className="space-y-4">
+                  {postData.selectedPlatforms.map(platformId => {
+                    const platform = platforms.find(p => p.id === platformId);
+                    return platform ? renderPlatformPreview(platform) : null;
+                  })}
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

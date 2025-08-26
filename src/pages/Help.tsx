@@ -1,3 +1,4 @@
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useState } from 'react';
 import { Search, Mail, MessageSquare, Book, HelpCircle, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -149,24 +150,31 @@ export default function Help() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">Help Center</h1>
-          <p className="text-muted-foreground text-lg">
-            Find answers to common questions or get in touch with our support team
-          </p>
+    <DashboardLayout 
+      title="Help Center"
+      description="Find answers to common questions or get in touch with our support team"
+    >
+      <div className="space-y-6">
+        {/* Search */}
+        <div className="max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search for help topics..." 
+              className="pl-10 h-12"
+            />
+          </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Quick Access Cards */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="p-6 text-center hover:shadow-lg transition-shadow cursor-pointer">
             <Book className="h-12 w-12 text-primary mx-auto mb-4" />
             <h3 className="font-semibold mb-2">Documentation</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Comprehensive guides and tutorials
             </p>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <ExternalLink className="h-4 w-4 mr-2" />
               View Docs
             </Button>
@@ -178,7 +186,7 @@ export default function Help() {
             <p className="text-sm text-muted-foreground mb-4">
               Get instant help from our support team
             </p>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <MessageSquare className="h-4 w-4 mr-2" />
               Start Chat
             </Button>
@@ -190,14 +198,14 @@ export default function Help() {
             <p className="text-sm text-muted-foreground mb-4">
               Send us a detailed message
             </p>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Mail className="h-4 w-4 mr-2" />
               Contact Us
             </Button>
           </Card>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid gap-8 grid-cols-1 lg:grid-cols-2">
           {/* FAQ Section */}
           <div>
             <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
@@ -361,6 +369,6 @@ export default function Help() {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

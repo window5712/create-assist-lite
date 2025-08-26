@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -117,18 +117,14 @@ export default function CalendarView() {
   const days = getDaysInMonth();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Content Calendar</h1>
-          <p className="text-muted-foreground">
-            View and manage your scheduled posts across all platforms
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-4">
+    <DashboardLayout 
+      title="Content Calendar"
+      description="View and manage your scheduled posts across all platforms"
+    >
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <Select value={filterPlatform} onValueChange={setFilterPlatform}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-52">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -159,12 +155,11 @@ export default function CalendarView() {
             </SelectContent>
           </Select>
 
-          <Button onClick={() => window.location.href = '/composer'}>
+          <Button onClick={() => window.location.href = '/composer'} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             New Post
           </Button>
         </div>
-      </div>
 
       <Card>
         <CardHeader>
@@ -208,7 +203,7 @@ export default function CalendarView() {
         <CardContent>
           <div className="grid grid-cols-7 gap-1 mb-4">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div key={day} className="p-2 text-center font-medium text-muted-foreground">
+              <div key={day} className="p-2 text-center font-medium text-muted-foreground text-sm">
                 {day}
               </div>
             ))}
@@ -222,11 +217,11 @@ export default function CalendarView() {
               return (
                 <div
                   key={day.toISOString()}
-                  className={`min-h-32 p-2 border rounded-lg ${
+                  className={`min-h-24 sm:min-h-32 p-1 sm:p-2 border rounded-lg ${
                     isToday ? 'border-primary bg-primary/5' : 'border-border'
                   }`}
                 >
-                  <div className={`text-sm font-medium mb-2 ${
+                  <div className={`text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
                     isToday ? 'text-primary' : 'text-foreground'
                   }`}>
                     {format(day, 'd')}
@@ -312,6 +307,7 @@ export default function CalendarView() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
