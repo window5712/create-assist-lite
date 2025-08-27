@@ -80,9 +80,7 @@ serve(async (req) => {
       user_id: user.id,
     } as const;
     const signature = await signState(statePayload);
-    const state = btoa(
-      JSON.stringify({ ...statePayload, sig: signature })
-    );
+    const state = btoa(JSON.stringify({ ...statePayload, sig: signature }));
 
     let authUrl = "";
 
@@ -139,19 +137,21 @@ async function signState(payload: {
   organization_id: string;
   user_id: string;
 }): Promise<string> {
-  const secret = (Deno.env.get("STATE_SECRET") || "").padEnd(32, "0").slice(0, 32);
+  const secret = (Deno.env.get("STATE_SECRET") || "")
+    .padEnd(32, "0")
+    .slice(0, 32);
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"],
+    ["sign"]
   );
   const data = `${payload.platform}|${payload.account_id}|${payload.organization_id}|${payload.user_id}`;
   const sigBuf = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(data),
+    new TextEncoder().encode(data)
   );
   return btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
 }

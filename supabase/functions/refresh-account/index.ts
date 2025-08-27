@@ -200,22 +200,24 @@ serve(async (req) => {
 
 async function encryptToken(token: string): Promise<string> {
   const keyMaterial = new TextEncoder().encode(
-    (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32),
+    (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32)
   );
   const key = await crypto.subtle.importKey(
     "raw",
     keyMaterial,
     { name: "AES-GCM" },
     false,
-    ["encrypt"],
+    ["encrypt"]
   );
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
-    new TextEncoder().encode(token),
+    new TextEncoder().encode(token)
   );
-  const combined = new Uint8Array(iv.byteLength + (encrypted as ArrayBuffer).byteLength);
+  const combined = new Uint8Array(
+    iv.byteLength + (encrypted as ArrayBuffer).byteLength
+  );
   combined.set(iv, 0);
   combined.set(new Uint8Array(encrypted as ArrayBuffer), iv.byteLength);
   return btoa(String.fromCharCode(...combined));
@@ -223,19 +225,23 @@ async function encryptToken(token: string): Promise<string> {
 
 async function decryptToken(encryptedToken: string): Promise<string> {
   const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode((Deno.env.get('ENCRYPTION_KEY') || '').padEnd(32, '0').slice(0, 32)),
-    { name: 'AES-GCM' },
+    "raw",
+    new TextEncoder().encode(
+      (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32)
+    ),
+    { name: "AES-GCM" },
     false,
-    ['decrypt']
-  )
-  const combined = Uint8Array.from(atob(encryptedToken), c => c.charCodeAt(0))
-  const iv = combined.slice(0, 12)
-  const encryptedData = combined.slice(12)
+    ["decrypt"]
+  );
+  const combined = Uint8Array.from(atob(encryptedToken), (c) =>
+    c.charCodeAt(0)
+  );
+  const iv = combined.slice(0, 12);
+  const encryptedData = combined.slice(12);
   const decryptedData = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv },
+    { name: "AES-GCM", iv },
     key,
     encryptedData
-  )
-  return new TextDecoder().decode(decryptedData)
+  );
+  return new TextDecoder().decode(decryptedData);
 }

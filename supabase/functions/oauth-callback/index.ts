@@ -29,7 +29,10 @@ serve(async (req) => {
     // Decode and verify state parameter
     const stateData = JSON.parse(atob(state));
     const { platform, account_id, organization_id, user_id, sig } = stateData;
-    const isValid = await verifyState({ platform, account_id, organization_id, user_id }, sig);
+    const isValid = await verifyState(
+      { platform, account_id, organization_id, user_id },
+      sig
+    );
     if (!isValid) {
       throw new Error("Invalid OAuth state");
     }
@@ -269,23 +272,30 @@ serve(async (req) => {
 });
 
 async function verifyState(
-  payload: { platform: string; account_id: string; organization_id: string; user_id: string },
-  signature: string,
+  payload: {
+    platform: string;
+    account_id: string;
+    organization_id: string;
+    user_id: string;
+  },
+  signature: string
 ): Promise<boolean> {
   try {
-    const secret = (Deno.env.get("STATE_SECRET") || "").padEnd(32, "0").slice(0, 32);
+    const secret = (Deno.env.get("STATE_SECRET") || "")
+      .padEnd(32, "0")
+      .slice(0, 32);
     const key = await crypto.subtle.importKey(
       "raw",
       new TextEncoder().encode(secret),
       { name: "HMAC", hash: "SHA-256" },
       false,
-      ["sign"],
+      ["sign"]
     );
     const data = `${payload.platform}|${payload.account_id}|${payload.organization_id}|${payload.user_id}`;
     const expectedBuf = await crypto.subtle.sign(
       "HMAC",
       key,
-      new TextEncoder().encode(data),
+      new TextEncoder().encode(data)
     );
     const expected = btoa(String.fromCharCode(...new Uint8Array(expectedBuf)));
     return expected === signature;
