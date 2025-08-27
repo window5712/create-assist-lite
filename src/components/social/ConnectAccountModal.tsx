@@ -250,17 +250,29 @@ export const ConnectAccountModal = ({
                 <span className="ml-2">Loading accounts...</span>
               </div>
             ) : accounts.length === 0 ? (
-              <Card>
-                <CardContent className="flex items-center justify-center py-8">
-                  <div className="text-center">
-                    <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground">
-                      No {config.name} accounts found. Please make sure you have
-                      the required permissions.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-3">
+                <Card>
+                  <CardContent className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground mb-4">
+                        No connected {config.name} accounts yet.
+                      </p>
+                      <Button
+                        onClick={() => connectAccount("")}
+                        style={{ backgroundColor: config.color }}
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Continue with {config.name}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                <p className="text-xs text-muted-foreground">
+                  You will be redirected to {config.name} to securely sign in and
+                  choose your pages/profiles. We never see your password.
+                </p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {accounts.map((account) => (

@@ -66,8 +66,9 @@ serve(async (req) => {
       name: a.account_id,
       username: undefined,
       avatar_url: undefined,
-      type: platform,
+      type: platform === 'facebook' ? 'page' : platform === 'instagram' ? 'business' : 'profile',
       followers_count: undefined,
+      is_connected: true,
     }));
 
     switch (platform) {
