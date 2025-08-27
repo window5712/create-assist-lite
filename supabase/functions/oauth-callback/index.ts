@@ -121,6 +121,8 @@ serve(async (req) => {
       account_username?: string;
       account_avatar_url?: string;
     };
+    // Resolved platform account id from provider
+    let resolvedPlatformAccountId = account_id;
 
     switch (platform) {
       case "facebook":
@@ -133,6 +135,7 @@ serve(async (req) => {
           account_username: fbAccountData.username,
           account_avatar_url: `https://graph.facebook.com/v18.0/${fbAccountData.id}/picture?type=large&access_token=${accessToken}`,
         };
+        resolvedPlatformAccountId = fbAccountData.id;
         break;
 
       case "instagram":
@@ -147,6 +150,7 @@ serve(async (req) => {
             account_username: account.username,
             account_avatar_url: `https://graph.facebook.com/v18.0/${account.id}/picture?type=large&access_token=${accessToken}`,
           };
+          resolvedPlatformAccountId = account.id;
         }
         break;
 
@@ -168,6 +172,7 @@ serve(async (req) => {
             liAccountData.profilePicture?.["displayImage~"]?.elements?.[0]
               ?.identifiers?.[0]?.identifier || "",
         };
+        resolvedPlatformAccountId = liAccountData.id;
         break;
     }
 
@@ -177,7 +182,7 @@ serve(async (req) => {
       .select("*")
       .eq("organization_id", organization_id)
       .eq("platform", platform)
-      .eq("account_id", account_id)
+      .eq("account_id", resolvedPlatformAccountId)
       .single();
 
     // Encrypt tokens before storing
@@ -189,7 +194,7 @@ serve(async (req) => {
     const accountData = {
       organization_id,
       platform,
-      account_id: account_id,
+      account_id: resolvedPlatformAccountId,
       account_name: accountDetails.account_name,
       account_username: accountDetails.account_username || null,
       account_avatar_url: accountDetails.account_avatar_url || null,

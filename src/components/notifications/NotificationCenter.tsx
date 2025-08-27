@@ -40,20 +40,20 @@ export function NotificationCenter() {
     setNotifications([]);
   }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   const getTypeStyles = (type: Notification["type"]) => {
@@ -90,9 +90,9 @@ export function NotificationCenter() {
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Notifications</h3>
             {unreadCount > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={markAllAsRead}
                 className="text-xs"
               >
@@ -101,7 +101,7 @@ export function NotificationCenter() {
             )}
           </div>
         </div>
-        
+
         <ScrollArea className="max-h-96">
           {notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
@@ -121,10 +121,18 @@ export function NotificationCenter() {
                     onClick={() => markAsRead(notification.id)}
                   >
                     <div className="flex items-start space-x-3">
-                      <Icon className={`h-4 w-4 mt-0.5 flex-shrink-0 ${getTypeStyles(notification.type)}`} />
+                      <Icon
+                        className={`h-4 w-4 mt-0.5 flex-shrink-0 ${getTypeStyles(
+                          notification.type
+                        )}`}
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
-                          <h4 className={`text-sm font-medium ${!notification.read ? "font-semibold" : ""}`}>
+                          <h4
+                            className={`text-sm font-medium ${
+                              !notification.read ? "font-semibold" : ""
+                            }`}
+                          >
                             {notification.title}
                           </h4>
                           <Button
@@ -156,7 +164,7 @@ export function NotificationCenter() {
             </div>
           )}
         </ScrollArea>
-        
+
         {notifications.length > 0 && (
           <div className="p-2 border-t">
             <Button variant="ghost" size="sm" className="w-full text-xs">

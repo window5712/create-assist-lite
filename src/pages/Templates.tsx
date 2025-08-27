@@ -1,14 +1,20 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Search, 
-  Plus, 
-  Star, 
+import {
+  Search,
+  Plus,
+  Star,
   Copy,
   Edit,
   Trash2,
@@ -17,7 +23,7 @@ import {
   MessageSquare,
   TrendingUp,
   Calendar,
-  Zap
+  Zap,
 } from "lucide-react";
 
 export default function Templates() {
@@ -30,23 +36,23 @@ export default function Templates() {
   }, []);
 
   const performanceColors = {
-    high: 'bg-success',
-    medium: 'bg-warning', 
-    low: 'bg-destructive'
+    high: "bg-success",
+    medium: "bg-warning",
+    low: "bg-destructive",
   };
 
   const getPlatformIcon = (platform: string) => {
     const icons = {
-      facebook: '📘',
-      instagram: '📷', 
-      linkedin: '💼',
-      twitter: '🐦'
+      facebook: "📘",
+      instagram: "📷",
+      linkedin: "💼",
+      twitter: "🐦",
     };
-    return icons[platform as keyof typeof icons] || '📱';
+    return icons[platform as keyof typeof icons] || "📱";
   };
 
   return (
-    <DashboardLayout 
+    <DashboardLayout
       title="Templates"
       description="Pre-made content templates to speed up your posting"
     >
@@ -61,14 +67,17 @@ export default function Templates() {
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search templates..." 
+            <Input
+              placeholder="Search templates..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
-          <Button variant="outline" className="self-start sm:self-auto w-full sm:w-auto">
+          <Button
+            variant="outline"
+            className="self-start sm:self-auto w-full sm:w-auto"
+          >
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
@@ -76,23 +85,32 @@ export default function Templates() {
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
-            <Card key={template.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <Card
+              key={template.id}
+              className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">{template.title}</h3>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {template.title}
+                  </h3>
                   <div className="flex gap-2 mb-3">
                     <Badge variant="secondary" className="capitalize text-xs">
                       {template.category}
                     </Badge>
-                    <Badge 
-                      variant="outline" 
-                      className={`text-xs text-white ${performanceColors[template.performance as keyof typeof performanceColors]}`}
+                    <Badge
+                      variant="outline"
+                      className={`text-xs text-white ${
+                        performanceColors[
+                          template.performance as keyof typeof performanceColors
+                        ]
+                      }`}
                     >
                       {template.performance} performance
                     </Badge>
                   </div>
                 </div>
-                
+
                 <div className="flex space-x-1">
                   <Button size="sm" variant="ghost">
                     <Star className="h-4 w-4" />
@@ -131,7 +149,7 @@ export default function Templates() {
 
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-1">
-                    {template.platforms.map(platform => (
+                    {template.platforms.map((platform) => (
                       <span key={platform} className="text-xs">
                         {getPlatformIcon(platform)}
                       </span>
