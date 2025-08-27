@@ -22,6 +22,7 @@ import {
   Bell,
   Search,
   Palette,
+  Code,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +36,9 @@ const sidebarItems = [
   { title: "Analytics", url: "/dashboard/analytics", icon: TrendingUp },
   { title: "Social Accounts", url: "/dashboard/social-accounts", icon: Globe },
   { title: "Templates", url: "/templates", icon: Palette },
+  { title: "Developer", url: "/developer", icon: Code },
   { title: "Help", url: "/help", icon: Users },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
-  { title: "Test", url: "/dashboard/test", icon: BarChart3 },
 ];
 
 const AppSidebar = () => {

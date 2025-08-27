@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle, Zap, Shield, Users, BarChart3 } from "lucide-react";
+import { ArrowRight, CheckCircle, Zap, Shield, Users, BarChart3, Github, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,18 +13,18 @@ const Landing = () => {
     },
     {
       icon: BarChart3,
-      title: "Advanced Analytics",
+      title: "Advanced Analytics", 
       description: "Track performance, audience engagement, and ROI with comprehensive analytics dashboards."
     },
     {
       icon: Users,
-      title: "Team Collaboration",
-      description: "Work seamlessly with your team using approval workflows and role-based permissions."
+      title: "GitHub Integration",
+      description: "Seamlessly sync your code with GitHub repositories and collaborate with your team in real-time."
     },
     {
       icon: Shield,
-      title: "Enterprise Security",
-      description: "Bank-level security with SOC 2 compliance, ensuring your data is always protected."
+      title: "AI Model Library",
+      description: "Download and run AI models offline for content generation, embeddings, and advanced features."
     }
   ];
 
@@ -70,7 +70,7 @@ const Landing = () => {
         <div className="container mx-auto text-center">
           <div className="max-w-4xl mx-auto animate-fade-in">
             <Badge variant="secondary" className="mb-6">
-              ✨ Now with AI-powered content suggestions
+              🚀 Now with GitHub integration and offline AI models
             </Badge>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">

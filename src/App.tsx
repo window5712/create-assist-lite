@@ -14,6 +14,7 @@ import Composer from "./pages/Composer";
 
 import Templates from "./pages/Templates";
 import Help from "./pages/Help";
+import Developer from "./pages/Developer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -92,6 +93,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Help />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/developer"
+              element={
+                <ProtectedRoute>
+                  <Developer />
                 </ProtectedRoute>
               }
             />
