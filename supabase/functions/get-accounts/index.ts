@@ -38,21 +38,28 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    // For now, we'll skip organization validation to avoid RLS issues
-    // In production, you should implement proper organization validation
+    // Validate user has access to organization
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("organization_id")
+      .eq("user_id", user.id)
+      .single();
+    if (!profile || profile.organization_id !== organization_id) {
+      throw new Error("Unauthorized");
+    }
 
-    // Get existing connected accounts (skip organization_id filter for now)
+    // Get existing connected accounts for org
     const { data: connectedAccounts } = await supabaseClient
       .from("social_accounts")
-      .select("platform_account_id, platform")
+      .select("account_id, platform")
       .eq("platform", platform)
+      .eq("organization_id", organization_id)
       .eq("is_active", true);
 
-    const connectedIds =
-      connectedAccounts?.map((acc) => acc.platform_account_id) || [];
+    const connectedIds = connectedAccounts?.map((acc) => acc.account_id) || [];
 
-    // Mock data for demonstration - in real implementation, this would call the platform APIs
-    let accounts = [];
+    // TODO: Call platform APIs to fetch real accounts accessible to the user
+    let accounts = [] as any[];
 
     switch (platform) {
       case "facebook":

@@ -109,7 +109,11 @@ serve(async (req) => {
     }
 
     // Get account details from platform
-    let accountDetails = {};
+    let accountDetails = {} as {
+      account_name: string;
+      account_username?: string;
+      account_avatar_url?: string;
+    };
 
     switch (platform) {
       case "facebook":
@@ -166,38 +170,41 @@ serve(async (req) => {
       .select("*")
       .eq("organization_id", organization_id)
       .eq("platform", platform)
-      .eq("platform_account_id", account_id)
+      .eq("account_id", account_id)
       .single();
+
+    // Encrypt tokens before storing
+    const access_token_encrypted = await encryptToken(accessToken);
+    const refresh_token_encrypted = refreshToken
+      ? await encryptToken(refreshToken)
+      : null;
 
     const accountData = {
       organization_id,
       platform,
-      platform_account_id: account_id,
+      account_id: account_id,
       account_name: accountDetails.account_name,
-      account_username: accountDetails.account_username,
-      account_avatar_url: accountDetails.account_avatar_url,
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      token_expires_at: expiresAt,
+      account_username: accountDetails.account_username || null,
+      account_avatar_url: accountDetails.account_avatar_url || null,
+      access_token_encrypted,
+      refresh_token_encrypted,
+      token_expires_at: expiresAt || null,
       is_active: true,
-      last_sync: new Date().toISOString(),
+      last_refresh_at: new Date().toISOString(),
       last_error: null,
-    };
+      updated_at: new Date().toISOString(),
+    } as const;
 
     if (existingAccount) {
-      // Update existing account
       const { error: updateError } = await supabaseClient
         .from("social_accounts")
         .update(accountData)
         .eq("id", existingAccount.id);
-
       if (updateError) throw updateError;
     } else {
-      // Create new account
       const { error: insertError } = await supabaseClient
         .from("social_accounts")
         .insert(accountData);
-
       if (insertError) throw insertError;
     }
 
@@ -256,3 +263,29 @@ serve(async (req) => {
     );
   }
 });
+
+async function encryptToken(token: string): Promise<string> {
+  const keyMaterial = new TextEncoder().encode(
+    (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32),
+  );
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyMaterial,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"],
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    new TextEncoder().encode(token),
+  );
+
+  // Prepend IV to ciphertext and base64 encode
+  const combined = new Uint8Array(iv.byteLength + (encrypted as ArrayBuffer).byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted as ArrayBuffer), iv.byteLength);
+  return btoa(String.fromCharCode(...combined));
+}

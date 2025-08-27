@@ -61,9 +61,13 @@ serve(async (req) => {
       throw new Error("Account not found");
     }
 
+    // Decrypt existing tokens
+    const decrypt = async (encrypted: string | null) =>
+      encrypted ? await decryptToken(encrypted) : "";
+
     // Check if token is expired and refresh if needed
-    let accessToken = account.access_token;
-    let refreshToken = account.refresh_token;
+    let accessToken = await decrypt(account.access_token_encrypted);
+    let refreshToken = await decrypt(account.refresh_token_encrypted);
     let expiresAt = account.token_expires_at;
 
     if (
@@ -87,7 +91,7 @@ serve(async (req) => {
                   grant_type: "fb_exchange_token",
                   client_id: Deno.env.get("FACEBOOK_APP_ID") || "",
                   client_secret: Deno.env.get("FACEBOOK_APP_SECRET") || "",
-                  fb_exchange_token: account.access_token,
+                  fb_exchange_token: accessToken,
                 }),
               }
             );
@@ -106,7 +110,7 @@ serve(async (req) => {
             break;
 
           case "linkedin":
-            if (!account.refresh_token) {
+            if (!refreshToken) {
               throw new Error("No refresh token available for LinkedIn");
             }
 
@@ -121,7 +125,7 @@ serve(async (req) => {
                   grant_type: "refresh_token",
                   client_id: Deno.env.get("LINKEDIN_CLIENT_ID") || "",
                   client_secret: Deno.env.get("LINKEDIN_CLIENT_SECRET") || "",
-                  refresh_token: account.refresh_token,
+                  refresh_token: refreshToken,
                 }),
               }
             );
@@ -134,7 +138,7 @@ serve(async (req) => {
             }
 
             accessToken = liRefreshData.access_token;
-            refreshToken = liRefreshData.refresh_token || account.refresh_token;
+            refreshToken = liRefreshData.refresh_token || refreshToken;
             expiresAt = new Date(
               Date.now() + liRefreshData.expires_in * 1000
             ).toISOString();
@@ -159,11 +163,14 @@ serve(async (req) => {
     }
 
     // Update account with new token and sync timestamp
+    const encrypt = async (token: string | null) =>
+      token ? await encryptToken(token) : null;
+
     const { error: updateError } = await supabaseClient
       .from("social_accounts")
       .update({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        access_token_encrypted: await encrypt(accessToken),
+        refresh_token_encrypted: await encrypt(refreshToken),
         token_expires_at: expiresAt,
         last_sync: new Date().toISOString(),
         last_error: null,
@@ -190,3 +197,45 @@ serve(async (req) => {
     });
   }
 });
+
+async function encryptToken(token: string): Promise<string> {
+  const keyMaterial = new TextEncoder().encode(
+    (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32),
+  );
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyMaterial,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"],
+  );
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    new TextEncoder().encode(token),
+  );
+  const combined = new Uint8Array(iv.byteLength + (encrypted as ArrayBuffer).byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted as ArrayBuffer), iv.byteLength);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptToken(encryptedToken: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode((Deno.env.get('ENCRYPTION_KEY') || '').padEnd(32, '0').slice(0, 32)),
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  )
+  const combined = Uint8Array.from(atob(encryptedToken), c => c.charCodeAt(0))
+  const iv = combined.slice(0, 12)
+  const encryptedData = combined.slice(12)
+  const decryptedData = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encryptedData
+  )
+  return new TextDecoder().decode(decryptedData)
+}
