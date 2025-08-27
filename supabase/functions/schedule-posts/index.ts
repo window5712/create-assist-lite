@@ -109,13 +109,17 @@ serve(async (req) => {
         // Determine if we should retry or mark as failed
         const shouldRetry = job.attempts < job.max_attempts
         const newStatus = shouldRetry ? 'pending' : 'failed'
-        
+        const backoffSeconds = shouldRetry ? computeBackoffSeconds(job.attempts) : 0
+        const nextSchedule = shouldRetry ? new Date(Date.now() + backoffSeconds * 1000).toISOString() : null
+
         await supabase
           .from('job_queue')
           .update({
             status: newStatus,
             last_error: error.message,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
+            // schedule next retry with exponential backoff
+            scheduled_for: nextSchedule
           })
           .eq('id', job.id)
 
@@ -337,24 +341,28 @@ async function handleFacebookResponse(response: Response): Promise<any> {
 async function decryptToken(encryptedToken: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(Deno.env.get('ENCRYPTION_KEY') || 'default-key-32-chars-long-here'),
+    new TextEncoder().encode((Deno.env.get('ENCRYPTION_KEY') || '').padEnd(32, '0').slice(0, 32)),
     { name: 'AES-GCM' },
     false,
     ['decrypt']
   )
-  
   // Decode base64
   const combined = Uint8Array.from(atob(encryptedToken), c => c.charCodeAt(0))
-  
   // Extract IV and encrypted data
   const iv = combined.slice(0, 12)
   const encryptedData = combined.slice(12)
-  
   const decryptedData = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv },
     key,
     encryptedData
   )
-  
   return new TextDecoder().decode(decryptedData)
+}
+
+function computeBackoffSeconds(attempts: number): number {
+  // Exponential backoff with jitter: base 60s, capped at 1 hour
+  const base = 60
+  const exp = Math.min(Math.pow(2, Math.max(0, attempts - 1)) * base, 3600)
+  const jitter = Math.floor(Math.random() * Math.min(30, exp))
+  return exp + jitter
 }
