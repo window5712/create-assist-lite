@@ -72,13 +72,16 @@ serve(async (req) => {
     const redirectUri = `${Deno.env.get(
       "SUPABASE_URL"
     )}/functions/v1/oauth-callback`;
+
+    const statePayload = {
+      platform,
+      account_id,
+      organization_id,
+      user_id: user.id,
+    } as const;
+    const signature = await signState(statePayload);
     const state = btoa(
-      JSON.stringify({
-        platform,
-        account_id,
-        organization_id,
-        user_id: user.id,
-      })
+      JSON.stringify({ ...statePayload, sig: signature })
     );
 
     let authUrl = "";
@@ -129,3 +132,26 @@ serve(async (req) => {
     });
   }
 });
+
+async function signState(payload: {
+  platform: string;
+  account_id: string;
+  organization_id: string;
+  user_id: string;
+}): Promise<string> {
+  const secret = (Deno.env.get("STATE_SECRET") || "").padEnd(32, "0").slice(0, 32);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const data = `${payload.platform}|${payload.account_id}|${payload.organization_id}|${payload.user_id}`;
+  const sigBuf = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(data),
+  );
+  return btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
+}

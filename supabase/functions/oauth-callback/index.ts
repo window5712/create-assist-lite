@@ -26,9 +26,13 @@ serve(async (req) => {
       throw new Error("Missing OAuth parameters");
     }
 
-    // Decode state parameter
+    // Decode and verify state parameter
     const stateData = JSON.parse(atob(state));
-    const { platform, account_id, organization_id, user_id } = stateData;
+    const { platform, account_id, organization_id, user_id, sig } = stateData;
+    const isValid = await verifyState({ platform, account_id, organization_id, user_id }, sig);
+    if (!isValid) {
+      throw new Error("Invalid OAuth state");
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -264,27 +268,55 @@ serve(async (req) => {
   }
 });
 
+async function verifyState(
+  payload: { platform: string; account_id: string; organization_id: string; user_id: string },
+  signature: string,
+): Promise<boolean> {
+  try {
+    const secret = (Deno.env.get("STATE_SECRET") || "").padEnd(32, "0").slice(0, 32);
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const data = `${payload.platform}|${payload.account_id}|${payload.organization_id}|${payload.user_id}`;
+    const expectedBuf = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(data),
+    );
+    const expected = btoa(String.fromCharCode(...new Uint8Array(expectedBuf)));
+    return expected === signature;
+  } catch {
+    return false;
+  }
+}
+
 async function encryptToken(token: string): Promise<string> {
   const keyMaterial = new TextEncoder().encode(
-    (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32),
+    (Deno.env.get("ENCRYPTION_KEY") || "").padEnd(32, "0").slice(0, 32)
   );
   const key = await crypto.subtle.importKey(
     "raw",
     keyMaterial,
     { name: "AES-GCM" },
     false,
-    ["encrypt"],
+    ["encrypt"]
   );
 
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
-    new TextEncoder().encode(token),
+    new TextEncoder().encode(token)
   );
 
   // Prepend IV to ciphertext and base64 encode
-  const combined = new Uint8Array(iv.byteLength + (encrypted as ArrayBuffer).byteLength);
+  const combined = new Uint8Array(
+    iv.byteLength + (encrypted as ArrayBuffer).byteLength
+  );
   combined.set(iv, 0);
   combined.set(new Uint8Array(encrypted as ArrayBuffer), iv.byteLength);
   return btoa(String.fromCharCode(...combined));
