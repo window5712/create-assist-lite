@@ -27,10 +27,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { MobileNavigation } from "@/components/dashboard/MobileNavigation";
+import { useAuth } from "@/hooks/useAuth";
+import { Home, LogOut } from "lucide-react";
 
 const sidebarItems = [
   { title: "Overview", url: "/dashboard", icon: BarChart3 },
@@ -114,6 +116,14 @@ export const DashboardLayout = ({
   title = "Dashboard",
   description,
 }: DashboardLayoutProps) => {
+  const navigate = useNavigate();
+  const { signOut, profile } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -144,14 +154,24 @@ export const DashboardLayout = ({
                     className="pl-10 w-48 lg:w-64 bg-background border-input"
                   />
                 </div>
+                <Link to="/" className="hidden md:block">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Home className="h-4 w-4" />
+                    Home
+                  </Button>
+                </Link>
                 <ThemeToggle />
                 <NotificationCenter />
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder-avatar.jpg" />
+                  <AvatarImage src={profile?.avatar_url || "/placeholder-avatar.jpg"} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    JD
+                    {(profile?.full_name || "User").slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
+                <Button variant="destructive" size="sm" className="gap-2" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
               </div>
             </div>
           </header>
