@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle, Zap, Shield, Users, BarChart3, Github, Brain } from "lucide-react";
+import { ArrowRight, CheckCircle, Zap, Shield, Users, BarChart3, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +18,8 @@ const Landing = () => {
     },
     {
       icon: Users,
-      title: "GitHub Integration",
-      description: "Seamlessly sync your code with GitHub repositories and collaborate with your team in real-time."
+      title: "Team Collaboration",
+      description: "Work with your team using roles, approvals, comments, and real-time notifications."
     },
     {
       icon: Shield,
@@ -70,16 +70,15 @@ const Landing = () => {
         <div className="container mx-auto text-center">
           <div className="max-w-4xl mx-auto animate-fade-in">
             <Badge variant="secondary" className="mb-6">
-              🚀 Now with GitHub integration and offline AI models
+              🚀 AI-powered content generation, scheduling, and publishing
             </Badge>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Streamline Your Social Media Presence
+              Manage Social Media From One Intelligent Platform
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              The modern, user-friendly platform that helps you schedule posts, analyze performance, 
-              and manage all your social accounts from one beautiful dashboard.
+              This app leverages AI tools to automatically generate, schedule, and publish engaging posts across Facebook, Instagram, and LinkedIn, eliminating the need for a dedicated social media manager. Its core idea is to simplify content creation and automation so businesses can manage all their social media from one intelligent platform.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -102,11 +101,10 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Everything you need to succeed
+              Everything you need to automate social media
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed for modern social media management, 
-              with an interface that anyone can master.
+              AI-generated content, smart scheduling, and analytics designed for modern social media management.
             </p>
           </div>
           
@@ -126,6 +124,61 @@ const Landing = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>AI Content</CardTitle>
+                <CardDescription>Generate Urdu/English posts, hashtags, and CTAs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Brand-safe variants</li>
+                  <li>• Custom templates</li>
+                  <li>• Approval workflows</li>
+                </ul>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Scheduling</CardTitle>
+                <CardDescription>Plan and auto-publish across platforms</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Bulk scheduling</li>
+                  <li>• Rate-limit aware retries</li>
+                  <li>• Audit logs</li>
+                </ul>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Analytics</CardTitle>
+                <CardDescription>Engagement, failures, and account health</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Charts and exports</li>
+                  <li>• Team roles and comments</li>
+                  <li>• Real-time notifications</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="text-center mt-10">
+            <Link to="/signup">
+              <Button size="lg" className="text-lg px-8 py-6">
+                Get Started
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

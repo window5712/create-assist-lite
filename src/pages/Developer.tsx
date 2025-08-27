@@ -1,12 +1,10 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { GitHubIntegration } from "@/components/github/GitHubIntegration";
 import { ModelDownloader } from "@/components/models/ModelDownloader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Github,
   Brain,
   Code2,
   Terminal,
@@ -18,13 +16,6 @@ import {
 
 const Developer = () => {
   const quickActions = [
-    {
-      title: "Clone Repository",
-      description: "Get started with the codebase",
-      icon: Github,
-      action: "git clone https://github.com/user/social-media-app.git",
-      color: "bg-primary"
-    },
     {
       title: "Install Dependencies", 
       description: "Set up your development environment",
@@ -49,7 +40,6 @@ const Developer = () => {
   ];
 
   const stats = [
-    { label: "Active Repositories", value: "3", icon: Github },
     { label: "AI Models", value: "12", icon: Brain },
     { label: "API Endpoints", value: "24", icon: Database },
     { label: "Build Status", value: "Passing", icon: Zap }
@@ -114,21 +104,13 @@ const Developer = () => {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="github" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="github" className="flex items-center gap-2">
-              <Github className="h-4 w-4" />
-              GitHub Integration
-            </TabsTrigger>
+        <Tabs defaultValue="models" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="models" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
               AI Models
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="github" className="space-y-4">
-            <GitHubIntegration />
-          </TabsContent>
 
           <TabsContent value="models" className="space-y-4">
             <ModelDownloader />
