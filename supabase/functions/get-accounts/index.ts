@@ -51,15 +51,24 @@ serve(async (req) => {
     // Get existing connected accounts for org with health fields
     const { data: connectedAccounts } = await supabaseClient
       .from("social_accounts")
-      .select("id, account_id, platform, is_active, last_refresh_at, last_error, token_expires_at")
+      .select(
+        "id, account_id, platform, is_active, last_refresh_at, last_error, token_expires_at"
+      )
       .eq("platform", platform)
       .eq("organization_id", organization_id)
       .eq("is_active", true);
 
     const connectedIds = connectedAccounts?.map((acc) => acc.account_id) || [];
 
-    // TODO: Call platform APIs to fetch real accounts accessible to the user
-    let accounts = [] as any[];
+    // Return only accounts that are connected in the database for this org
+    const accounts = (connectedAccounts || []).map((a: any) => ({
+      id: a.account_id,
+      name: a.account_id,
+      username: undefined,
+      avatar_url: undefined,
+      type: platform,
+      followers_count: undefined,
+    }));
 
     switch (platform) {
       case "facebook":
@@ -119,15 +128,18 @@ serve(async (req) => {
 
     // Merge health info into connected accounts list
     const healthMap = new Map(
-      (connectedAccounts || []).map((a: any) => [a.account_id, {
-        account_id: a.account_id,
-        id: a.id,
-        is_active: a.is_active,
-        last_refresh_at: a.last_refresh_at,
-        token_expires_at: a.token_expires_at,
-        last_error: a.last_error,
-        health: deriveHealth(a)
-      }])
+      (connectedAccounts || []).map((a: any) => [
+        a.account_id,
+        {
+          account_id: a.account_id,
+          id: a.id,
+          is_active: a.is_active,
+          last_refresh_at: a.last_refresh_at,
+          token_expires_at: a.token_expires_at,
+          last_error: a.last_error,
+          health: deriveHealth(a),
+        },
+      ])
     );
 
     const accountsWithHealth = accounts.map((acc: any) => ({
@@ -148,12 +160,12 @@ serve(async (req) => {
   }
 });
 
-function deriveHealth(a: any): 'healthy' | 'expiring' | 'expired' | 'error' {
-  if (a.last_error) return 'error'
-  if (!a.token_expires_at) return 'healthy'
-  const now = new Date()
-  const exp = new Date(a.token_expires_at)
-  if (exp <= now) return 'expired'
-  const diffDays = (exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-  return diffDays < 7 ? 'expiring' : 'healthy'
+function deriveHealth(a: any): "healthy" | "expiring" | "expired" | "error" {
+  if (a.last_error) return "error";
+  if (!a.token_expires_at) return "healthy";
+  const now = new Date();
+  const exp = new Date(a.token_expires_at);
+  if (exp <= now) return "expired";
+  const diffDays = (exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays < 7 ? "expiring" : "healthy";
 }
