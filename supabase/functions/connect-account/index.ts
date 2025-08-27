@@ -25,7 +25,7 @@ serve(async (req) => {
 
     const { platform, account_id, organization_id } = await req.json();
 
-    if (!platform || !account_id || !organization_id) {
+    if (!platform || !organization_id) {
       throw new Error("Missing required parameters");
     }
 
@@ -49,23 +49,25 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    // Check if account is already connected
-    const { data: existingAccount } = await supabaseClient
-      .from("social_accounts")
-      .select("*")
-      .eq("organization_id", organization_id)
-      .eq("platform", platform)
-      .eq("platform_account_id", account_id)
-      .single();
+    // If an account_id is provided, ensure it's not already connected
+    if (account_id) {
+      const { data: existingAccount } = await supabaseClient
+        .from("social_accounts")
+        .select("*")
+        .eq("organization_id", organization_id)
+        .eq("platform", platform)
+        .eq("account_id", account_id)
+        .single();
 
-    if (existingAccount && existingAccount.is_active) {
-      return new Response(
-        JSON.stringify({ message: "Account already connected" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
+      if (existingAccount && existingAccount.is_active) {
+        return new Response(
+          JSON.stringify({ message: "Account already connected" }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
+          }
+        );
+      }
     }
 
     // Generate OAuth URL for the platform
@@ -75,7 +77,7 @@ serve(async (req) => {
 
     const statePayload = {
       platform,
-      account_id,
+      account_id: account_id || "",
       organization_id,
       user_id: user.id,
     } as const;

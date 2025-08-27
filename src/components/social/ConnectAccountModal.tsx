@@ -83,6 +83,16 @@ export const ConnectAccountModal = ({
   const { organization } = useAuth();
 
   const config = platformConfig[platform as keyof typeof platformConfig];
+  const prettyScopes = (scopes: string[]) => {
+    return scopes.map((s) =>
+      s
+        .replace(/_/g, " ")
+        .replace("pages ", "")
+        .replace("instagram ", "")
+        .replace("w_", "")
+        .replace("r_", "")
+    );
+  };
 
   useEffect(() => {
     if (isOpen && platform) {
@@ -220,17 +230,10 @@ export const ConnectAccountModal = ({
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {config.scopes.map((scope) => (
+                {prettyScopes(config.scopes).map((scope) => (
                   <div key={scope} className="flex items-center gap-2 text-sm">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="capitalize">
-                      {scope
-                        .replace(/_/g, " ")
-                        .replace("pages ", "")
-                        .replace("instagram ", "")
-                        .replace("w_", "")
-                        .replace("r_", "")}
-                    </span>
+                    <span className="capitalize">{scope}</span>
                   </div>
                 ))}
               </div>
