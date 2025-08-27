@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -28,57 +28,17 @@ interface Notification {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    title: "Post Published Successfully",
-    message: "Your Instagram post 'New Product Launch' has been published",
-    type: "success",
-    timestamp: "2 minutes ago",
-    read: false,
-    icon: CheckCircle,
-  },
-  {
-    id: "2",
-    title: "High Engagement Alert",
-    message: "Your LinkedIn post is getting 50% more engagement than usual",
-    type: "info",
-    timestamp: "15 minutes ago",
-    read: false,
-    icon: TrendingUp,
-  },
-  {
-    id: "3",
-    title: "New Follower Milestone",
-    message: "Congratulations! You've reached 10K followers on Twitter",
-    type: "success",
-    timestamp: "1 hour ago",
-    read: true,
-    icon: Users,
-  },
-  {
-    id: "4",
-    title: "Post Scheduled",
-    message: "Your Facebook post has been scheduled for tomorrow at 3:00 PM",
-    type: "info",
-    timestamp: "2 hours ago",
-    read: true,
-    icon: MessageSquare,
-  },
-  {
-    id: "5",
-    title: "Account Connection Issue",
-    message: "There's an issue with your Instagram connection. Please reconnect.",
-    type: "warning",
-    timestamp: "5 hours ago",
-    read: false,
-    icon: AlertTriangle,
-  },
-];
+// Empty initial notifications; fetch from DB if available
+const initialNotifications: Notification[] = [];
 
 export function NotificationCenter() {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState(initialNotifications);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    // TODO: Replace with supabase from('notifications') for real data
+    setNotifications([]);
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 

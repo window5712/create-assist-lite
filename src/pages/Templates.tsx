@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,39 +22,12 @@ import {
 
 export default function Templates() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [templates, setTemplates] = useState<any[]>([]);
 
-  const mockTemplates = [
-    {
-      id: '1',
-      title: 'Product Launch',
-      category: 'announcements',
-      content: '🚀 Excited to announce our latest product! Get ready for innovation that will change everything.',
-      platforms: ['facebook', 'linkedin'],
-      engagement: { likes: 245, shares: 34, comments: 18 },
-      performance: 'high',
-      usage: 12
-    },
-    {
-      id: '2', 
-      title: 'Weekly Tips',
-      category: 'educational',
-      content: '💡 Pro Tip Tuesday: Did you know that posting at optimal times can increase engagement by 50%?',
-      platforms: ['instagram', 'twitter'],
-      engagement: { likes: 156, shares: 28, comments: 12 },
-      performance: 'medium',
-      usage: 8
-    },
-    {
-      id: '3',
-      title: 'Behind the Scenes',
-      category: 'company',
-      content: '🎬 Take a peek behind the scenes at our amazing team working hard to bring you the best.',
-      platforms: ['instagram', 'facebook'],
-      engagement: { likes: 198, shares: 15, comments: 23 },
-      performance: 'high',
-      usage: 15
-    }
-  ];
+  useEffect(() => {
+    // TODO: fetch real templates from Supabase when table exists
+    setTemplates([]);
+  }, []);
 
   const performanceColors = {
     high: 'bg-success',
@@ -102,7 +75,7 @@ export default function Templates() {
         </div>
 
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {mockTemplates.map((template) => (
+          {templates.map((template) => (
             <Card key={template.id} className="p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">

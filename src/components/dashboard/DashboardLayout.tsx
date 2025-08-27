@@ -41,7 +41,6 @@ const sidebarItems = [
   { title: "Analytics", url: "/dashboard/analytics", icon: TrendingUp },
   { title: "Social Accounts", url: "/dashboard/social-accounts", icon: Globe },
   { title: "Templates", url: "/templates", icon: Palette },
-  { title: "Developer", url: "/developer", icon: Code },
   { title: "Help", url: "/help", icon: Users },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
@@ -133,18 +132,20 @@ export const DashboardLayout = ({
           {/* Header */}
           <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
             <div className="flex items-center justify-between p-4">
-            <div className="flex items-center space-x-4">
-              <MobileNavigation />
-              <SidebarTrigger className="hidden md:flex text-foreground hover:bg-accent hover:text-accent-foreground" />
-              <div className="hidden sm:block">
-                <h1 className="text-xl md:text-2xl font-bold text-foreground">
-                  {title}
-                </h1>
-                {description && (
-                  <p className="text-muted-foreground text-sm">{description}</p>
-                )}
+              <div className="flex items-center space-x-4">
+                <MobileNavigation />
+                <SidebarTrigger className="hidden md:flex text-foreground hover:bg-accent hover:text-accent-foreground" />
+                <div className="hidden sm:block">
+                  <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                    {title}
+                  </h1>
+                  {description && (
+                    <p className="text-muted-foreground text-sm">
+                      {description}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
 
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <div className="relative hidden sm:block">
@@ -163,12 +164,19 @@ export const DashboardLayout = ({
                 <ThemeToggle />
                 <NotificationCenter />
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={profile?.avatar_url || "/placeholder-avatar.jpg"} />
+                  <AvatarImage
+                    src={profile?.avatar_url || "/placeholder-avatar.jpg"}
+                  />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {(profile?.full_name || "User").slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <Button variant="destructive" size="sm" className="gap-2" onClick={handleLogout}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="gap-2"
+                  onClick={handleLogout}
+                >
                   <LogOut className="h-4 w-4" />
                   Logout
                 </Button>
@@ -177,7 +185,9 @@ export const DashboardLayout = ({
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-4 md:p-6 bg-background overflow-x-hidden">{children}</main>
+          <main className="flex-1 p-4 md:p-6 bg-background overflow-x-hidden">
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>
