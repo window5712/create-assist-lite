@@ -28,6 +28,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NavLink, useLocation } from "react-router-dom";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { MobileNavigation } from "@/components/dashboard/MobileNavigation";
 
 const sidebarItems = [
   { title: "Overview", url: "/dashboard", icon: BarChart3 },
@@ -120,36 +123,32 @@ export const DashboardLayout = ({
           {/* Header */}
           <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
             <div className="flex items-center justify-between p-4">
-              <div className="flex items-center space-x-4">
-                <SidebarTrigger className="text-foreground hover:bg-accent hover:text-accent-foreground" />
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {title}
-                  </h1>
-                  {description && (
-                    <p className="text-muted-foreground">{description}</p>
-                  )}
-                </div>
+            <div className="flex items-center space-x-4">
+              <MobileNavigation />
+              <SidebarTrigger className="hidden md:flex text-foreground hover:bg-accent hover:text-accent-foreground" />
+              <div className="hidden sm:block">
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                  {title}
+                </h1>
+                {description && (
+                  <p className="text-muted-foreground text-sm">{description}</p>
+                )}
               </div>
+            </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="relative">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="relative hidden sm:block">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search..."
-                    className="pl-10 w-64 bg-background border-input"
+                    className="pl-10 w-48 lg:w-64 bg-background border-input"
                   />
                 </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="border-input hover:bg-accent"
-                >
-                  <Bell className="h-4 w-4" />
-                </Button>
-                <Avatar>
+                <ThemeToggle />
+                <NotificationCenter />
+                <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder-avatar.jpg" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     JD
                   </AvatarFallback>
                 </Avatar>
@@ -158,7 +157,7 @@ export const DashboardLayout = ({
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 bg-background">{children}</main>
+          <main className="flex-1 p-4 md:p-6 bg-background overflow-x-hidden">{children}</main>
         </div>
       </div>
     </SidebarProvider>

@@ -126,7 +126,7 @@ export default function CalendarView() {
 
   const PostCard = ({ post }: { post: ScheduledPost }) => (
     <div
-      className="p-2 mb-1 rounded text-xs cursor-pointer hover:opacity-80 transition-opacity"
+      className="p-1.5 sm:p-2 mb-1 rounded-md text-xs cursor-pointer hover:opacity-90 transition-all duration-200 hover:shadow-sm group"
       style={{
         backgroundColor: `hsl(var(--${statusColors[
           post.status as keyof typeof statusColors
@@ -135,17 +135,21 @@ export default function CalendarView() {
       onClick={() => setSelectedPost(post)}
     >
       <div className="flex items-center space-x-1 mb-1">
-        {post.target_platforms.map((platform) => {
+        {post.target_platforms.slice(0, 2).map((platform) => {
           const Icon = platformIcons[platform as keyof typeof platformIcons];
           return Icon ? (
-            <Icon key={platform} className="h-3 w-3 text-white" />
+            <Icon key={platform} className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white opacity-90" />
           ) : null;
         })}
+        {post.target_platforms.length > 2 && (
+          <span className="text-white/80 text-xs">+{post.target_platforms.length - 2}</span>
+        )}
       </div>
-      <p className="text-white font-medium truncate">
-        {post.title || post.content.substring(0, 30)}
+      <p className="text-white font-medium truncate text-xs leading-tight">
+        {post.title || post.content.substring(0, 25)}
+        {(post.title || post.content).length > 25 && "..."}
       </p>
-      <p className="text-white/80">
+      <p className="text-white/90 text-xs mt-1">
         {post.scheduled_for
           ? format(parseISO(post.scheduled_for), "HH:mm")
           : ""}
@@ -224,20 +228,24 @@ export default function CalendarView() {
           </div>
         </div>
 
-        <Card>
+        <Card className="shadow-glow">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>{format(selectedDate, "MMMM yyyy")}</span>
-                </CardTitle>
-                <CardDescription>
-                  {posts.length} posts scheduled this month
-                </CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    {format(selectedDate, "MMMM yyyy")}
+                  </CardTitle>
+                  <CardDescription>
+                    {posts.length} posts scheduled this month
+                  </CardDescription>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -250,6 +258,7 @@ export default function CalendarView() {
                       )
                     )
                   }
+                  className="flex-1 sm:flex-none"
                 >
                   Previous
                 </Button>
@@ -257,6 +266,7 @@ export default function CalendarView() {
                   variant="outline"
                   size="sm"
                   onClick={() => setSelectedDate(new Date())}
+                  className="flex-1 sm:flex-none"
                 >
                   Today
                 </Button>
@@ -272,6 +282,7 @@ export default function CalendarView() {
                       )
                     )
                   }
+                  className="flex-1 sm:flex-none"
                 >
                   Next
                 </Button>
@@ -280,18 +291,18 @@ export default function CalendarView() {
           </CardHeader>
 
           <CardContent>
-            <div className="grid grid-cols-7 gap-1 mb-4">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
                   key={day}
-                  className="p-2 text-center font-medium text-muted-foreground text-sm"
+                  className="p-2 text-center font-semibold text-muted-foreground text-xs sm:text-sm bg-muted/30 rounded"
                 >
                   {day}
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {days.map((day) => {
                 const dayPosts = getPostsForDay(day);
                 const isToday = isSameDay(day, new Date());
@@ -299,22 +310,29 @@ export default function CalendarView() {
                 return (
                   <div
                     key={day.toISOString()}
-                    className={`min-h-24 sm:min-h-32 p-1 sm:p-2 border rounded-lg ${
-                      isToday ? "border-primary bg-primary/5" : "border-border"
+                    className={`min-h-20 sm:min-h-28 md:min-h-32 p-1 sm:p-2 border-2 rounded-lg transition-all duration-200 hover:shadow-md ${
+                      isToday 
+                        ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20" 
+                        : "border-border hover:border-primary/30"
                     }`}
                   >
                     <div
-                      className={`text-xs sm:text-sm font-medium mb-1 sm:mb-2 ${
+                      className={`text-xs sm:text-sm font-semibold mb-1 sm:mb-2 ${
                         isToday ? "text-primary" : "text-foreground"
                       }`}
                     >
                       {format(day, "d")}
                     </div>
 
-                    <div className="space-y-1">
-                      {dayPosts.map((post) => (
+                    <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
+                      {dayPosts.slice(0, 3).map((post) => (
                         <PostCard key={post.id} post={post} />
                       ))}
+                      {dayPosts.length > 3 && (
+                        <div className="text-xs text-muted-foreground text-center bg-muted/50 rounded px-1 py-0.5">
+                          +{dayPosts.length - 3} more
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

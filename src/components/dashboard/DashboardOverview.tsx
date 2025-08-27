@@ -9,6 +9,10 @@ import {
   Calendar,
   BarChart3,
   Settings,
+  Zap,
+  Target,
+  Clock,
+  Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +23,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { AIAssistantSimple } from "@/components/ai/AIAssistantSimple";
+import { QuickActions } from "@/components/dashboard/QuickActions";
 import { useNavigate } from "react-router-dom";
 
 const kpiCards = [
@@ -88,55 +94,70 @@ const recentPosts = [
 export const DashboardOverview = () => {
   const navigate = useNavigate();
 
+  const weeklyGoal = 75; // percentage
+  const postsThisWeek = 12;
+  const goalPosts = 16;
+
   return (
     <div className="space-y-6">
-      {/* Quick Actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            Quick Actions
-          </h2>
-          <p className="text-muted-foreground">Get started with your content</p>
+      {/* Hero Stats Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <QuickActions />
         </div>
-        <div className="flex space-x-2">
-          <AIAssistantSimple
-            onContentGenerated={(content, hashtags) => {
-              const params = new URLSearchParams({
-                content: content,
-                hashtags: hashtags?.join(",") || "",
-              });
-              window.location.href = `/composer?${params.toString()}`;
-            }}
-          />
-          <Button
-            onClick={() => navigate("/composer")}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Post
-          </Button>
-        </div>
+        
+        {/* Weekly Goal */}
+        <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Target className="h-5 w-5 text-primary" />
+              Weekly Goal
+            </CardTitle>
+            <CardDescription>Content creation progress</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{weeklyGoal}%</div>
+              <p className="text-sm text-muted-foreground">
+                {postsThisWeek} of {goalPosts} posts
+              </p>
+            </div>
+            <Progress value={weeklyGoal} className="h-3" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>This week</span>
+              <span>{goalPosts - postsThisWeek} remaining</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Performance Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpiCards.map((kpi, index) => (
           <Card
             key={index}
-            className="border-border bg-card text-card-foreground hover:shadow-glow transition-all duration-300"
+            className="border-border bg-card text-card-foreground hover:shadow-glow transition-all duration-300 group cursor-pointer"
+            onClick={() => {
+              if (kpi.title === "Total Followers") navigate("/dashboard/analytics");
+              else if (kpi.title === "Posts This Month") navigate("/dashboard/calendar");
+              else if (kpi.title === "Engagement Rate") navigate("/dashboard/analytics");
+              else if (kpi.title === "Connected Accounts") navigate("/dashboard/social-accounts");
+            }}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-card-foreground">
                 {kpi.title}
               </CardTitle>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                <kpi.icon className="h-4 w-4 text-primary" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">
+              <div className="text-2xl font-bold text-foreground mb-1">
                 {kpi.value}
               </div>
-              <p className="text-xs text-muted-foreground">{kpi.description}</p>
-              <div className="flex items-center mt-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{kpi.description}</p>
                 <Badge
                   variant={kpi.trend === "up" ? "default" : "secondary"}
                   className="text-xs"
@@ -149,118 +170,69 @@ export const DashboardOverview = () => {
         ))}
       </div>
 
-      {/* Dashboard Navigation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card
-          className="border-border bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
-          onClick={() => navigate("/dashboard/calendar")}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">
-                  Content Calendar
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Schedule & manage posts
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="border-border bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
-          onClick={() => navigate("/dashboard/analytics")}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Analytics</h3>
-                <p className="text-sm text-muted-foreground">
-                  Track performance
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="border-border bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
-          onClick={() => navigate("/dashboard/social-accounts")}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Globe className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">
-                  Social Accounts
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Manage connections
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="border-border bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
-          onClick={() => navigate("/dashboard/settings")}
-        >
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <Settings className="w-6 h-6 text-gray-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Settings</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure preferences
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Content Overview */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Recent Posts */}
-        <Card className="border-border bg-card">
+      {/* Activity Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle className="text-card-foreground">Recent Posts</CardTitle>
-            <CardDescription>
-              Your latest content across all platforms
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Today's Activity
+            </CardTitle>
+            <CardDescription>Your productivity snapshot</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {[
+              { label: "Posts Created", value: "3", icon: MessageSquare, color: "text-blue-500" },
+              { label: "Posts Scheduled", value: "5", icon: Clock, color: "text-green-500" },
+              { label: "Accounts Managed", value: "4", icon: Users, color: "text-purple-500" },
+              { label: "Analytics Viewed", value: "2", icon: BarChart3, color: "text-orange-500" },
+            ].map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-background rounded-lg">
+                    <item.icon className={`h-4 w-4 ${item.color}`} />
+                  </div>
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+                <span className="text-lg font-bold">{item.value}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Recent Posts */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-card-foreground">Recent Posts</CardTitle>
+                <CardDescription>
+                  Your latest content across all platforms
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate("/composer")}>
+                <Plus className="h-4 w-4 mr-2" />
+                New Post
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
             {recentPosts.map((post) => (
               <div
                 key={post.id}
-                className="flex items-start space-x-3 p-3 border border-border rounded-lg bg-card/50 hover:bg-accent/50 transition-colors"
+                className="flex items-start space-x-3 p-4 border border-border rounded-lg bg-card/50 hover:bg-accent/50 transition-colors cursor-pointer"
+                onClick={() => navigate("/dashboard/calendar")}
               >
                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <MessageSquare className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground line-clamp-2">
+                  <p className="text-sm text-foreground line-clamp-2 mb-2">
                     {post.content}
                   </p>
-                  <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Badge
-                        variant="outline"
-                        className="text-xs border-border"
-                      >
+                      <Badge variant="outline" className="text-xs border-border">
                         {post.platform}
                       </Badge>
                       <Badge
@@ -285,58 +257,82 @@ export const DashboardOverview = () => {
             ))}
           </CardContent>
         </Card>
+      </div>
 
-        {/* Platform Health */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-card-foreground">
-              Platform Health
-            </CardTitle>
-            <CardDescription>
-              Connection status for your social accounts
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* Platform Health */}
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-card-foreground flex items-center gap-2">
+                <Globe className="h-5 w-5" />
+                Platform Health
+              </CardTitle>
+              <CardDescription>
+                Connection status for your social accounts
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate("/dashboard/social-accounts")}
+            >
+              Manage Accounts
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { platform: "Twitter", status: "connected", followers: "3.2K" },
-              { platform: "Instagram", status: "connected", followers: "5.8K" },
-              { platform: "LinkedIn", status: "connected", followers: "2.1K" },
-              { platform: "Facebook", status: "error", followers: "1.3K" },
-              { platform: "YouTube", status: "disconnected", followers: "892" },
+              { platform: "Twitter", status: "connected", followers: "3.2K", health: 95 },
+              { platform: "Instagram", status: "connected", followers: "5.8K", health: 92 },
+              { platform: "LinkedIn", status: "connected", followers: "2.1K", health: 88 },
+              { platform: "Facebook", status: "error", followers: "1.3K", health: 45 },
+              { platform: "YouTube", status: "disconnected", followers: "892", health: 0 },
             ].map((account, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50 hover:bg-accent/50 transition-colors"
+                className="p-4 border border-border rounded-lg bg-card/50 hover:bg-accent/50 transition-colors space-y-3"
               >
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-between">
                   <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
                     <Globe className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {account.platform}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {account.followers} followers
-                    </p>
-                  </div>
+                  <Badge
+                    variant={
+                      account.status === "connected"
+                        ? "default"
+                        : account.status === "error"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                    className="text-xs"
+                  >
+                    {account.status}
+                  </Badge>
                 </div>
-                <Badge
-                  variant={
-                    account.status === "connected"
-                      ? "default"
-                      : account.status === "error"
-                      ? "destructive"
-                      : "secondary"
-                  }
-                >
-                  {account.status}
-                </Badge>
+                <div>
+                  <p className="font-medium text-foreground text-sm">
+                    {account.platform}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {account.followers} followers
+                  </p>
+                </div>
+                {account.status === "connected" && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span>Health</span>
+                      <span>{account.health}%</span>
+                    </div>
+                    <Progress value={account.health} className="h-1" />
+                  </div>
+                )}
               </div>
             ))}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
