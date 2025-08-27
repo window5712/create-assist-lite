@@ -164,6 +164,34 @@ export const DashboardSocialAccounts = () => {
     }
   };
 
+  const reconnectAccount = async (account: SocialAccount) => {
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "connect-account",
+        {
+          body: {
+            platform: account.platform,
+            account_id: account.id,
+            organization_id: organization?.id,
+          },
+        }
+      );
+      if (error) throw error;
+      if (data?.requires_oauth && data?.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        fetchAccounts();
+      }
+    } catch (error) {
+      console.error("Error reconnecting account:", error);
+      toast({
+        title: "Error",
+        description: "Failed to start reconnect flow",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -245,9 +273,7 @@ export const DashboardSocialAccounts = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Badge
-                          variant={account.is_active ? "default" : "secondary"}
-                        >
+                        <Badge variant={account.is_active ? "default" : "secondary"}>
                           {account.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </div>
@@ -275,6 +301,14 @@ export const DashboardSocialAccounts = () => {
                         >
                           <RefreshCw className="h-3 w-3 mr-1" />
                           Refresh
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => reconnectAccount(account)}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Reconnect
                         </Button>
                         <Button
                           size="sm"

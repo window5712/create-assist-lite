@@ -23,7 +23,11 @@ serve(async (req) => {
       }
     );
 
+    // Simple input validation
     const { account_id, organization_id } = await req.json();
+    if (typeof account_id !== 'string' || typeof organization_id !== 'string') {
+      throw new Error('Invalid parameters');
+    }
 
     if (!account_id || !organization_id) {
       throw new Error("Missing required parameters");
@@ -48,6 +52,13 @@ serve(async (req) => {
     if (!profile || profile.organization_id !== organization_id) {
       throw new Error("Unauthorized");
     }
+
+    // Basic rate limit: 1 request per account per 5 seconds (in-memory best-effort)
+    const key = `rl_refresh_${account_id}`
+    if ((globalThis as any)[key] && Date.now() - (globalThis as any)[key] < 5000) {
+      throw new Error('Too many requests. Please wait a few seconds and try again.')
+    }
+    ;(globalThis as any)[key] = Date.now()
 
     // Get the account to refresh
     const { data: account, error: accountError } = await supabaseClient
