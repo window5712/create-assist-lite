@@ -1,4 +1,31 @@
-# Welcome to your Lovable project
+# Create Assist Lite - Social Media Management Platform
+
+A comprehensive social media management platform with AI-powered content generation and scheduling capabilities.
+
+## Features
+
+### 🎯 Core Features
+
+- **Content Calendar**: Visual calendar for scheduling posts across multiple platforms
+- **Analytics Dashboard**: Track performance and engagement metrics
+- **Social Accounts Management**: Connect and manage Facebook, Instagram, and LinkedIn accounts
+- **AI-Powered Content Generation**: Create engaging posts with Google's Gemini AI
+- **Multi-Platform Publishing**: Schedule posts to Facebook, Instagram, and LinkedIn
+
+### 🤖 AI Features
+
+- **Content Generation**: Generate posts based on topics, tone, and length preferences
+- **Content Analysis**: Analyze existing content for engagement potential and optimization
+- **Content Ideas**: Get creative content suggestions for any topic
+- **Hashtag Optimization**: Receive relevant hashtag recommendations
+- **Sentiment Analysis**: Understand the tone and impact of your content
+
+### 📊 Dashboard Pages
+
+- **Calendar**: Visual content calendar with AI-powered post generation
+- **Analytics**: Performance tracking with AI content suggestions
+- **Social Accounts**: Account management with AI content creation
+- **Settings**: Platform configuration and preferences
 
 ## Project info
 
@@ -54,11 +81,63 @@ npm run dev
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Frontend**: Vite, TypeScript, React
+- **UI Components**: shadcn-ui, Tailwind CSS
+- **Backend**: Supabase (Database, Authentication, Edge Functions)
+- **AI Integration**: Google Gemini API
+- **Social Media APIs**: Facebook, Instagram, LinkedIn
+- **State Management**: React Query (TanStack Query)
+- **Routing**: React Router DOM
+- **Date Handling**: date-fns
+- **Charts**: Recharts
+
+## Setup Instructions
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+- Google Gemini API key (for AI features)
+- Supabase account (for backend services)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd create-assist-lite
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+   Create a `.env` file in the root directory:
+
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_GEMINI_API_KEY=your_gemini_api_key
+   ```
+
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+### AI Features Setup
+
+For AI-powered content generation, you'll need to set up Google's Gemini API:
+
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create an API key
+3. Add it to your `.env` file as `VITE_GEMINI_API_KEY`
+
+See [AI_SETUP.md](./AI_SETUP.md) for detailed AI setup instructions.
 
 ## How can I deploy this project?
 

@@ -1,5 +1,5 @@
-import { 
-  SidebarProvider, 
+import {
+  SidebarProvider,
   SidebarTrigger,
   Sidebar,
   SidebarContent,
@@ -9,19 +9,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { 
-  BarChart3, 
-  Calendar, 
-  Users, 
-  MessageSquare, 
-  TrendingUp, 
+import {
+  BarChart3,
+  Calendar,
+  Users,
+  MessageSquare,
+  TrendingUp,
   Globe,
   Settings,
   Bell,
   Search,
-  Palette
+  Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,19 +31,20 @@ import { NavLink, useLocation } from "react-router-dom";
 const sidebarItems = [
   { title: "Overview", url: "/dashboard", icon: BarChart3 },
   { title: "Composer", url: "/composer", icon: MessageSquare },
-  { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Analytics", url: "/analytics", icon: TrendingUp },
-  { title: "Social Accounts", url: "/social-accounts", icon: Globe },
+  { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
+  { title: "Analytics", url: "/dashboard/analytics", icon: TrendingUp },
+  { title: "Social Accounts", url: "/dashboard/social-accounts", icon: Globe },
   { title: "Templates", url: "/templates", icon: Palette },
   { title: "Help", url: "/help", icon: Users },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "Test", url: "/dashboard/test", icon: BarChart3 },
 ];
 
 const AppSidebar = () => {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  
+
   const isActive = (path: string) => {
     if (path === "/dashboard") {
       return currentPath === "/dashboard";
@@ -52,10 +53,17 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-sidebar-border bg-sidebar"
+    >
       <SidebarContent className="bg-sidebar">
         <SidebarGroup>
-          <SidebarGroupLabel className={`${state === "collapsed" ? "hidden" : ""} text-sidebar-foreground/70`}>
+          <SidebarGroupLabel
+            className={`${
+              state === "collapsed" ? "hidden" : ""
+            } text-sidebar-foreground/70`}
+          >
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -64,13 +72,14 @@ const AppSidebar = () => {
                 const active = isActive(item.url);
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
+                    <SidebarMenuButton
+                      asChild
                       className={`
                         transition-all duration-200 
-                        ${active 
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-sm" 
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                        ${
+                          active
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-sm"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                         }
                       `}
                     >
@@ -96,12 +105,16 @@ interface DashboardLayoutProps {
   description?: string;
 }
 
-export const DashboardLayout = ({ children, title = "Dashboard", description }: DashboardLayoutProps) => {
+export const DashboardLayout = ({
+  children,
+  title = "Dashboard",
+  description,
+}: DashboardLayoutProps) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        
+
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
@@ -109,36 +122,42 @@ export const DashboardLayout = ({ children, title = "Dashboard", description }: 
               <div className="flex items-center space-x-4">
                 <SidebarTrigger className="text-foreground hover:bg-accent hover:text-accent-foreground" />
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {title}
+                  </h1>
                   {description && (
                     <p className="text-muted-foreground">{description}</p>
                   )}
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search..." 
-                    className="pl-10 w-64 bg-background border-input" 
+                  <Input
+                    placeholder="Search..."
+                    className="pl-10 w-64 bg-background border-input"
                   />
                 </div>
-                <Button variant="outline" size="icon" className="border-input hover:bg-accent">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-input hover:bg-accent"
+                >
                   <Bell className="h-4 w-4" />
                 </Button>
                 <Avatar>
                   <AvatarImage src="/placeholder-avatar.jpg" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    JD
+                  </AvatarFallback>
                 </Avatar>
               </div>
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 bg-background">
-            {children}
-          </main>
+          <main className="flex-1 p-6 bg-background">{children}</main>
         </div>
       </div>
     </SidebarProvider>

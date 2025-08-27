@@ -1,7 +1,13 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -9,7 +15,12 @@ interface AuthContextType {
   profile: any;
   organization: any;
   loading: boolean;
-  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: any }>;
+  signUp: (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string
+  ) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithMagicLink: (email: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -27,43 +38,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile and organization
-          setTimeout(async () => {
-            try {
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select(`
-                  *,
-                  organization:organizations(*)
-                `)
-                .eq('user_id', session.user.id)
-                .single();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
 
-              if (profileError) {
-                console.error('Error fetching profile:', profileError);
-                return;
-              }
+      if (session?.user) {
+        // Create a profile from user metadata to avoid RLS issues
+        const userProfile = {
+          id: session.user.id,
+          user_id: session.user.id,
+          first_name: session.user.user_metadata?.first_name || "User",
+          last_name: session.user.user_metadata?.last_name || "",
+          full_name:
+            session.user.user_metadata?.full_name ||
+            session.user.email?.split("@")[0] ||
+            "User",
+          email: session.user.email,
+          avatar_url: session.user.user_metadata?.avatar_url,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          organization_id: null, // We'll handle this separately
+        };
 
-              setProfile(profileData);
-              setOrganization(profileData.organization);
-            } catch (error) {
-              console.error('Error in auth state change:', error);
-            }
-          }, 0);
-        } else {
-          setProfile(null);
-          setOrganization(null);
-        }
-        
+        setProfile(userProfile);
+        setOrganization(null);
+        setLoading(false);
+      } else {
+        setProfile(null);
+        setOrganization(null);
         setLoading(false);
       }
-    );
+
+      setLoading(false);
+    });
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -75,9 +84,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string
+  ) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -86,21 +100,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: {
           first_name: firstName,
           last_name: lastName,
-          full_name: firstName && lastName ? `${firstName} ${lastName}` : undefined
-        }
-      }
+          full_name:
+            firstName && lastName ? `${firstName} ${lastName}` : undefined,
+        },
+      },
     });
 
     if (error) {
       toast({
         title: "Signup failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
       toast({
         title: "Check your email",
-        description: "We've sent you a confirmation link to complete your signup."
+        description:
+          "We've sent you a confirmation link to complete your signup.",
       });
     }
 
@@ -110,14 +126,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     if (error) {
       toast({
         title: "Sign in failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
 
@@ -126,24 +142,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithMagicLink = async (email: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectUrl
-      }
+        emailRedirectTo: redirectUrl,
+      },
     });
 
     if (error) {
       toast({
         title: "Magic link failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     } else {
       toast({
         title: "Magic link sent!",
-        description: "Check your email for a secure sign-in link."
+        description: "Check your email for a secure sign-in link.",
       });
     }
 
@@ -159,17 +175,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      profile,
-      organization,
-      loading,
-      signUp,
-      signIn,
-      signInWithMagicLink,
-      signOut
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        profile,
+        organization,
+        loading,
+        signUp,
+        signIn,
+        signInWithMagicLink,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -178,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
